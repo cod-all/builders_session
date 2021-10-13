@@ -1,4 +1,3 @@
-import json
 import os
 
 import pymongo
@@ -15,14 +14,12 @@ client = pymongo.MongoClient(
 
 db = client.{DATABASE}
 
+db.{COLLECTION}.create_index(
+    [("firstName", pymongo.ASCENDING), ("LastName", pymongo.DESCENDING)]
+)
 
-def get_recently_updated_by_location(location):
-    results = db.{COLLECTION}.find().sort(
-        [("updatedAt", pymongo.DESCENDING)]
-    )
-    return results
+db.{COLLECTION}.create_index(
+    [("address.city", pymongo.ASCENDING), ("age", pymongo.DESCENDING)]
+)
 
-
-results = get_recently_updated_by_location()
-for person in results:
-    print(f"Person: {person['lastName']}. Updated at {person['updatedAt']}")
+print("Index created successfully.")
