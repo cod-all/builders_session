@@ -13,26 +13,26 @@ client = pymongo.MongoClient(
     f"mongodb://{USER}:{PASSWORD}@{HOST}:27017/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred&retrywrites=false"
 )
 
-db = client.{DATABASE}
+db = client[DATABASE]
 
 
-def add_review_to_restaurant(name):
-    db.{COLLECTION}.update_one(
-        {"name": name},
+def update_person(firstName, lastName):
+    db[COLLECTION].update_one(
+        {"lastName": lastName, "firstName": firstName},
         {
             "$set": {"updatedAt": datetime.datetime.now().isoformat(),}
         },
     )
+    print(f"Person: ",firstName, " ", lastName," updated at ", datetime.datetime.now().isoformat())
     return
 
-def get_recently_updated(location):
-    results = db.{COLLECTION}.aggregate([{ $sample: { size: 1 } }])
+def get_person():
+    
+    results = db[COLLECTION].aggregate([{"$sample":{"size":1}}])
     return results
 
-results = get_recently_updated()
-for person in results:
-    #print(f"Person: {person['lastName']}. Updated at {person['updatedAt']}")
-
-    add_review_to_restaurant(
-        {person['lastName']},
-       )
+record = get_person()
+for person in record:
+    firstName = person['firstName']
+    lastName = person['lastName']
+    update_person(firstName,lastName)

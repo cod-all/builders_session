@@ -12,9 +12,9 @@ client = pymongo.MongoClient(
     f"mongodb://{USER}:{PASSWORD}@{HOST}:27017/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred"
 )
 
-db = client.{DATABASE}
+db = client[DATABASE]
 
-results = db.{COLLECTION}.count()
+results = db[COLLECTION].estimated_document_count()
 
 print(
     f"Connected successfully! There are {results} documents in your {COLLECTION} collection."

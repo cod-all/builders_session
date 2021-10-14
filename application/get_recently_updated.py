@@ -13,11 +13,11 @@ client = pymongo.MongoClient(
     f"mongodb://{USER}:{PASSWORD}@{HOST}:27017/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred"
 )
 
-db = client.{DATABASE}
+db = client[DATABASE]
 
 
-def get_recently_updated_by_location(location):
-    results = db.{COLLECTION}.find().sort(
+def get_recently_updated_by_location():
+    results = db[COLLECTION].find().limit(1).sort(
         [("updatedAt", pymongo.DESCENDING)]
     )
     return results
@@ -25,4 +25,4 @@ def get_recently_updated_by_location(location):
 
 results = get_recently_updated_by_location()
 for person in results:
-    print(f"Person: {person['lastName']}. Updated at {person['updatedAt']}")
+    print(f"Person: {person['firstName']} {person['lastName']}. Updated at {person['updatedAt']}")

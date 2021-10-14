@@ -4,20 +4,21 @@ import os
 import pymongo
 
 from pymongo.errors import BulkWriteError
+from pymongo import InsertOne
 from faker import Factory
 from faker import Faker
 import faker
 from multiprocessing import Process
 import time
+import datetime
 import random
 
 #Settings for Faker - change the locale to create data in other languages
 fake = Factory.create('en_US') 
 
-#Batch size and bulk size
-batchSize=10
-bulkSize=1
-
+#Number of processes to launch
+processesNumber = 50
+processesList = []
 
 USER = os.environ["DOCUMENTDB_USER"]
 PASSWORD = os.environ["DOCUMENTDB_PASSWORD"]
@@ -32,28 +33,11 @@ def run(processId):
     )
 
     #Define your database and collection
-    db = connection.{DATABASE}
-    coll = db.{COLLECTION}
-    bulk = coll.initialize_unordered_bulk_op()
+    db = client[DATABASE]
+    coll = db[COLLECTION]
 
-    # Insert batchSize records
-    for i in range(batchSize):
-        if (i%bulkSize== 0): #print every bulkSize writes
-            pass
-        
-        if (i%bulkSize == (bulkSize-1)):
-            try:
-                bulk.execute()
-            except BulkWriteError as bwe:
-                print('Bulk write error')
-            bulk = coll.initialize_ordered_bulk_op() #and reinit the bulk op
-
-        # Fake person info - this is where you build your people document
-        # Create customer record
-        try:
-            result=bulk.insert({
+    document = {
                                 "process":processId,
-                                "index":i,
                                 "updatedAt":datetime.datetime.now().isoformat(),
                                 "lastName":fake.last_name(),
                                 "firstName":fake.first_name(),
@@ -86,9 +70,10 @@ def run(processId):
                                              {"md5":fake.md5(raw_output=False)},
                                              {"aliasInfo":fake.csv(header=('Name', 'Address', 'Favorite Color'), data_columns=('{{name}}', '{{address}}', '{{safe_color_name}}'), num_rows=10, include_row_ids=True)}
                                 ],
-            })
-        except Exception as e:
-            print("insert failed:", i, " error : ", e)
+            }
+
+    result = coll.insert_one(document) 
+
 if __name__ == '__main__':
     # Creation of processesNumber processes
     for i in range(processesNumber):
@@ -104,13 +89,15 @@ if __name__ == '__main__':
     for process in processesList:
         process.join()
 
+    print("Documents loaded successfully.")
+
 #Create an index
 client = pymongo.MongoClient(
     f"mongodb://{USER}:{PASSWORD}@{HOST}:27017/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred"
 )
 
-db = client.{DATABASE}
+db = client[DATABASE]
 
-db.{COLLECTION}.create_index([("lastName", pymongo.DESCENDING)])
+db[COLLECTION].create_index([("lastName", pymongo.DESCENDING)])
 
 print("Index created successfully.")
