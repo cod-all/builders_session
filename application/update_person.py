@@ -18,7 +18,7 @@ db = client[DATABASE]
 
 def update_person(firstName, lastName):
     db[COLLECTION].update_one(
-        {"lastName": lastName, "firstName": firstName},
+        {"firstName": firstName, "lastName": lastName},
         {
             "$set": {"updatedAt": datetime.datetime.now().isoformat(),}
         },

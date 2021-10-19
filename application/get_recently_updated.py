@@ -16,13 +16,13 @@ client = pymongo.MongoClient(
 db = client[DATABASE]
 
 
-def get_recently_updated_by_location():
+def get_recently_updated():
     results = db[COLLECTION].find().limit(1).sort(
         [("updatedAt", pymongo.DESCENDING)]
     )
     return results
 
 
-results = get_recently_updated_by_location()
+results = get_recently_updated()
 for person in results:
     print(f"Person: {person['firstName']} {person['lastName']}. Updated at {person['updatedAt']}")

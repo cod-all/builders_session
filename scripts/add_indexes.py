@@ -15,7 +15,7 @@ client = pymongo.MongoClient(
 db = client[DATABASE]
 
 db[COLLECTION].create_index(
-    [("firstName", pymongo.ASCENDING), ("LastName", pymongo.DESCENDING)]
+    [("firstName", pymongo.ASCENDING), ("lastName", pymongo.DESCENDING), ("updatedAt", pymongo.DESCENDING)]
 )
 
 db[COLLECTION].create_index(
