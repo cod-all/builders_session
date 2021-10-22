@@ -18,7 +18,7 @@ db = client[DATABASE]
 
 def get_recently_updated():
     results = db[COLLECTION].find().limit(1).sort(
-        [("updatedAt", pymongo.DESCENDING)]
+        [("lastName", pymongo.DESCENDING)]
     )
     return results
 
